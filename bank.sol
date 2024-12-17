@@ -1,44 +1,38 @@
 // SPDX-License-Identifier: GPL-3.0
-
 pragma solidity >=0.7.0 <0.9.0;
-contract Excersice1 {
 
-    struct Students {
-        string name;
-        string surname;
-        uint8 age;
-        bool exist;
-    }
-    
-    mapping (address => Students) student;
-    uint32 numStudents;
+contract Bank{
 
-    Students [] studentList;
-    address [] studentAddress;
+    // Variables
+    mapping (address => uint) balance;
 
-    function signUp (string memory _name, string memory _surname, uint8 _age) public
+    // Events
+    event Transfer (address _from, address _to, uint _amount);
+
+    // Functions
+    function addBalance (uint _amount) external returns (uint _balance)
     {
-        if (!student[msg.sender].exist){
-            student[msg.sender] = Students (_name, _surname, _age, true);
-            studentList.push(student[msg.sender]);
-            studentAddress.push(msg.sender);
-            numStudents ++;
-        }
+        require (_amount > 0, "Error: The invested amount must be greater than 0.");
+        
+        return balance[msg.sender] += _amount;
     }
 
-    function getStudentDataByAddress () public view returns (Students memory)
+    function getBalance () external view returns (uint _balance)
     {
-        return student[msg.sender]; 
+        return balance[msg.sender];
     }
 
-    function getAllStudents () public view returns (Students [] memory)
+    function transfer (address _to, uint _amount) external
     {
-        return studentList;
+        _transfer (msg.sender, _to, _amount);
     }
 
-    //Otra forma de acceder a los datos de un estudiante a traves del address
-    function getStudientById (uint8 id) public view returns (Students memory) 
+    function _transfer (address _from, address _to, uint _amount) private
     {
-        return (student[studentAddress[id]]);
+        require (_amount > 0, "Error: The amount to transfer must be greater than 0.");
+
+        balance[_from] -= _amount;
+        balance[_to] += _amount;
+        emit Transfer(_from, _to, _amount);
     }
 }
